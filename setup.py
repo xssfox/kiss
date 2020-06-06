@@ -4,15 +4,15 @@
 """
 Setup for the Python KISS Module.
 
-Source:: https://github.com/ampledata/kiss
+Source:: https://github.com/theskorm/kiss-fix
 """
 
 import os
 import setuptools
 import sys
 
-__title__ = 'kiss'
-__version__ = '7.0.0'
+__title__ = 'kissfix'
+__version__ = '7.0.4'
 __author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
 __copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
 __license__ = 'Apache License, Version 2.0'  # NOQA pylint: disable=R0801
@@ -33,14 +33,15 @@ setuptools.setup(
     name=__title__,
     version=__version__,
     description='Python KISS Module.',
-    author='Greg Albrecht',
+    author='Greg Albrecht - patches by Michael Wheeler',
     author_email='oss@undef.net',
-    packages=['kiss'],
+    packages=['kissfix'],
     package_data={'': ['LICENSE']},
-    package_dir={'kiss': 'kiss'},
+    package_dir={'kissfix': 'kiss'},
     license=open('LICENSE').read(),
-    long_description=open('README.rst').read(),
-    url='https://github.com/ampledata/kiss',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
+    url='https://github.com/xssfox/kiss-fix',
     zip_safe=False,
     setup_requires=[
         'coverage >= 4.4.1',

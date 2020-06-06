@@ -3,7 +3,7 @@
 
 """Python KISS Module Utility Functions Definitions."""
 
-import kiss
+from . import constants
 
 __author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801
 __copyright__ = 'Copyright 2017 Greg Albrecht and Contributors'  # NOQA pylint: disable=R0801
@@ -20,11 +20,11 @@ def escape_special_codes(raw_codes):
     - http://en.wikipedia.org/wiki/KISS_(TNC)#Description
     """
     return raw_codes.replace(
-        kiss.FESC,
-        kiss.FESC_TFESC
+        constants.FESC,
+        constants.FESC_TFESC
     ).replace(
-        kiss.FEND,
-        kiss.FESC_TFEND
+        constants.FEND,
+        constants.FESC_TFEND
     )
 
 
@@ -38,11 +38,11 @@ def recover_special_codes(escaped_codes):
     - http://en.wikipedia.org/wiki/KISS_(TNC)#Description
     """
     return escaped_codes.replace(
-        kiss.FESC_TFESC,
-        kiss.FESC
+        constants.FESC_TFESC,
+        constants.FESC
     ).replace(
-        kiss.FESC_TFEND,
-        kiss.FEND
+        constants.FESC_TFEND,
+        constants.FEND
     )
 
 
@@ -56,8 +56,8 @@ def extract_ui(frame):
     :rtype: str
     """
     start_ui = frame.split(
-        b''.join([kiss.FEND, kiss.DATA_FRAME]))
-    end_ui = start_ui[0].split(b''.join([kiss.SLOT_TIME, kiss.UI_PROTOCOL_ID]))
+        b''.join([constants.FEND, constants.DATA_FRAME]))
+    end_ui = start_ui[0].split(b''.join([constants.SLOT_TIME, constants.UI_PROTOCOL_ID]))
     return ''.join([chr(x >> 1) for x in end_ui[0]])
 
 
@@ -70,7 +70,7 @@ def strip_df_start(frame):
     :returns: APRS/AX.25 frame sans DATA_FRAME start (0x00).
     :rtype: str
     """
-    return frame.lstrip(kiss.DATA_FRAME).strip()
+    return frame.lstrip(constants.DATA_FRAME).strip()
 
 
 def strip_nmea(frame):
