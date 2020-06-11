@@ -28,7 +28,7 @@ from .exceptions import SocketClosetError  # NOQA
 from .util import (escape_special_codes, recover_special_codes, extract_ui,  # NOQA
                    strip_df_start, strip_nmea)
 
-from .classes import KISS, TCPKISS, SerialKISS  # NOQA
+from .classes import KISS, TCPKISS, SerialKISS, TCPServerKISS  # NOQA
 
 
 __author__ = 'Greg Albrecht W2GMD <oss@undef.net>'  # NOQA pylint: disable=R0801

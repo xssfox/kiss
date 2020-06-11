@@ -226,6 +226,40 @@ class TCPKISS(KISS):
         self._logger.info('Connected to %s', self.address)
         self._write_handler = self.interface.send
 
+class TCPServerKISS(KISS):
+
+    """KISS TCP Class."""
+
+    def __init__(self, host, port, strip_df_start=False):
+        self.address = (host, int(port))
+        self.strip_df_start = strip_df_start
+        self.conn = None
+        super(TCPServerKISS, self).__init__(strip_df_start)
+
+    def _read_handler(self, read_bytes=None):
+        if self.conn == None:
+            self.conn, addr = self.interface.accept()
+        self._write_handler = self.conn.send
+        read_bytes = read_bytes or constants.READ_BYTES
+        read_data = self.conn.recv(read_bytes)
+        self._logger.debug('len(read_data)=%s', len(read_data))
+        if len(read_data) == 0:
+            self.conn = None
+        return read_data
+
+    def stop(self):
+        if self.interface:
+            self.interface.shutdown(socket.SHUT_RDWR)
+
+    def start(self):
+        """
+        Initializes the KISS device and commits configuration.
+        """
+        self.interface = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.interface.bind(self.address)
+        self.interface.listen(0)
+        self._logger.info('Server started')
+        #self._write_handler = self.interface.send
 
 class SerialKISS(KISS):
 
