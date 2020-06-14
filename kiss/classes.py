@@ -31,6 +31,7 @@ class KISS(object):
     def __init__(self, strip_df_start: bool=False) -> None:
         self.strip_df_start = strip_df_start
         self.interface = None
+        self.reading = False
 
     def __enter__(self):
         return self
@@ -106,7 +107,9 @@ class KISS(object):
 
         read_buffer = bytes()
 
-        while 1:
+        self.reading = True
+
+        while self.reading == True:
             read_data = self._read_handler(read_bytes)
 
             if read_data is not None and len(read_data):
@@ -213,6 +216,7 @@ class TCPKISS(KISS):
         return read_data
 
     def stop(self):
+        self.reading = False
         if self.interface:
             self.interface.shutdown(socket.SHUT_RDWR)
 
@@ -248,6 +252,7 @@ class TCPServerKISS(KISS):
         return read_data
 
     def stop(self):
+        self.reading = False
         if self.interface:
             self.interface.shutdown(socket.SHUT_RDWR)
 
@@ -314,6 +319,7 @@ class SerialKISS(KISS):
         self.interface.write(constants.KISS_OFF)
 
     def stop(self):
+        self.reading = False
         try:
             if self.interface and self.interface.isOpen():
                 self.interface.close()
