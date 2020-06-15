@@ -237,19 +237,48 @@ class TCPServerKISS(KISS):
     def __init__(self, host, port, strip_df_start=False):
         self.address = (host, int(port))
         self.strip_df_start = strip_df_start
-        self.conn = None
+        self.conns = []
         super(TCPServerKISS, self).__init__(strip_df_start)
+    
+    def _write_handler(self, frame):
+        conns = self.conns
+        try:
+            conn, addr = self.interface.accept()
+            self._logger.info(f"Client connected from {addr}")
+            self.conns.append(conn)
+        except socket.timeout:
+            pass
+        conns = self.conns
+        for conn in conns:
+            try:
+                conn.send(frame)
+            except ConnectionResetError:
+                self.conns.remove(conn)
+            except BrokenPipeError:
+                self.conns.remove(conn)
 
     def _read_handler(self, read_bytes=None):
-        if self.conn == None:
-            self.conn, addr = self.interface.accept()
-        self._write_handler = self.conn.send
         read_bytes = read_bytes or constants.READ_BYTES
-        read_data = self.conn.recv(read_bytes)
-        self._logger.debug('len(read_data)=%s', len(read_data))
-        if len(read_data) == 0:
-            self.conn = None
-        return read_data
+        try:
+            conn, addr = self.interface.accept()
+            self._logger.info(f"Client connected from {addr}")
+            conn.settimeout(0.01)
+            self.conns.append(conn)
+        except socket.timeout:
+            pass
+        conns = self.conns
+        for conn in self.conns:
+            try: 
+                read_data = conn.recv(read_bytes)
+                if read_data:
+                    self._logger.info(f"Read KISS bytes from TCP client : {read_bytes}")
+                    self._logger.debug('len(read_data)=%s', len(read_data))
+                    return read_data
+            except socket.timeout:
+                pass
+            except ConnectionResetError: 
+                self._logger.info(f"{conn} Disconnected")
+                self.conns.remove(conn)
 
     def stop(self):
         self.reading = False
@@ -262,7 +291,8 @@ class TCPServerKISS(KISS):
         """
         self.interface = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.interface.bind(self.address)
-        self.interface.listen(0)
+        self.interface.listen(1)
+        self.interface.settimeout(0.01)
         self._logger.info('Server started')
         #self._write_handler = self.interface.send
 
