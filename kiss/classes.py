@@ -290,6 +290,7 @@ class TCPServerKISS(KISS):
         Initializes the KISS device and commits configuration.
         """
         self.interface = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.interface.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.interface.bind(self.address)
         self.interface.listen(1)
         self.interface.settimeout(0.01)

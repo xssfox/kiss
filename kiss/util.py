@@ -19,13 +19,16 @@ def escape_special_codes(raw_codes):
     FESC is then sent as FESC, TFESC."
     - http://en.wikipedia.org/wiki/KISS_(TNC)#Description
     """
-    return raw_codes.replace(
-        constants.FESC,
-        constants.FESC_TFESC
-    ).replace(
-        constants.FEND,
-        constants.FESC_TFEND
-    )
+    output = b''
+    for i, x in enumerate(raw_codes):
+        x = bytes([x])
+        if constants.FESC == x:
+            output += constants.FESC_TFESC
+        elif constants.FEND == x:
+            output += constants.FESC_TFEND
+        else:
+            output += x
+    return output
 
 
 def recover_special_codes(escaped_codes):
@@ -37,14 +40,19 @@ def recover_special_codes(escaped_codes):
     replaced by FESC code and FESC_TFEND is replaced by FEND code."
     - http://en.wikipedia.org/wiki/KISS_(TNC)#Description
     """
-    return escaped_codes.replace(
-        constants.FESC_TFESC,
-        constants.FESC
-    ).replace(
-        constants.FESC_TFEND,
-        constants.FEND
-    )
 
+    output = b''
+    enumerated = enumerate(escaped_codes)
+    for i, x in enumerated:
+        if constants.FESC_TFESC == escaped_codes[i:i+2]:
+            output += constants.FESC
+            next(enumerated, None)
+        elif constants.FESC_TFEND == escaped_codes[i:i+2]:
+            output += constants.FEND
+            next(enumerated, None)
+        else:
+            output += bytes([x])
+    return output
 
 def extract_ui(frame):
     """
